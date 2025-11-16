@@ -8,8 +8,8 @@ A simple CLI tool to export backer data from OpenCollective for ISO mailings. It
 5. Acquire an Open Collective [personal token](https://documentation.opencollective.com/development/personel-tokens).
 > [!Note]
 > Current operations are possible using only the "account" scope. For security, don't add any others.
-4. Add your token to the keyring with `./oc-export.py set-token`. The program will prompt you for your token.
-5. Move on to usage!
+6. Add your token to the keyring with `./oc-export.py set-token`. The program will prompt you for your token.
+7. Move on to usage!
 
 # Usage
 > [!Warning]
