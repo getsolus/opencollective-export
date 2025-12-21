@@ -18,4 +18,4 @@ A simple CLI tool to export backer data from OpenCollective for ISO mailings. It
 > [!Note]
 > Most of this program's documentation lives in its built-in help. Run commands with `--help` to see detailed usage.
 
-The usual operation (getting mailing list CSVs for each backer tier) is very simple: `./oc-export.py export`.
+The usual operation (getting mailing list CSVs for each backer tier) is very simple: `python oc-export.py export`.
