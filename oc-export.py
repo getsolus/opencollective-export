@@ -2,6 +2,7 @@
 import csv
 
 import typer
+from gql.transport.exceptions import TransportError
 from typing_extensions import Annotated
 from typing import List
 import opencollective
@@ -15,6 +16,27 @@ import datetime
 app = typer.Typer()
 console = Console()
 error_console = Console(stderr=True, style="bold red")
+global_state = {}
+
+
+def __handle_exception(exception: Exception):
+    """
+    Handle exceptions nicely, printing to stderr, then exit.
+    """
+    match exception.__class__.__name__:
+        case "TransportServerError":
+            if exception.args[0].startswith("401"):
+                error_console.print("[red]401 Unauthorized.[/red] [black]Please check the status of your Open Collective token.[/black]")
+            elif exception.args[0].startswith("500"):
+                error_console.print("[red]500 Internal Server Error.[/red] [black]Open Collective can't process our query. Try again later.[/black]")
+            else:
+                raise exception
+        case _:
+            raise exception
+    if global_state.get("debug"):
+        console.print('--debug specified; re-raising the exception:')
+        raise exception
+    exit(1)
 
 
 def __get_token():
@@ -31,6 +53,14 @@ def __get_token():
     return token
 
 
+@app.callback()
+def __create_global_state(
+        debug: bool = typer.Option(False, "--debug"),
+) -> None:
+    global_state["debug"] = debug
+
+
+
 @app.command()
 def list_backers(
     org: Annotated[str, typer.Option()] = "getsolus",
@@ -41,7 +71,10 @@ def list_backers(
     """
     token = __get_token()
     client = opencollective.get_client(personal_token=token)
-    backers = opencollective.get_active_backers(org=org, client=client)
+    try:
+        backers = opencollective.get_active_backers(org=org, client=client)
+    except TransportError as e:
+        __handle_exception(e)
     if tier:
         backers = opencollective.filter_backers(backers, tier)
         console.print(
@@ -64,7 +97,10 @@ def list_tiers(org: Annotated[str, typer.Option()] = "getsolus"):
     """
     token = __get_token()
     client = opencollective.get_client(personal_token=token)
-    tiers = opencollective.get_tiers(org=org, client=client)
+    try:
+        tiers = opencollective.get_tiers(org=org, client=client)
+    except TransportError as e:
+        __handle_exception(e)
     console.print(
         f"The following tiers are available for the organization {org}:", style="bold"
     )
@@ -86,7 +122,10 @@ def export(
     token = __get_token()
     client = opencollective.get_client(personal_token=token)
     console.print("Querying OpenCollective (may take a moment)...")
-    all_backers = opencollective.get_active_backers(client=client, org=org)
+    try:
+        all_backers = opencollective.get_active_backers(client=client, org=org)
+    except TransportError as e:
+        __handle_exception(e)
     if tier:
         tiers = tier
     else:
