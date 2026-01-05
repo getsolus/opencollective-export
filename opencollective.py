@@ -43,14 +43,17 @@ query collective($slug: String, $limit: Int, $offset: Int) {
       totalCount
       nodes {
         name
-        description
         account {
           emails
+          type
           orders {
             totalCount
             nodes {
               status
               frequency
+              tier {
+                name
+              }
               toAccount {
                 slug
               }
@@ -85,6 +88,21 @@ query collective($slug: String, $limit: Int, $offset: Int) {
     return output_backers
 
 
+def __test_backer_for_tier(backer: dict, tier: str) -> bool:
+    """
+    Tests an individual backer record to see if they are a member of the specified contribution tier.
+    :param backer:
+    An individual backer, as returned by this module's get_active_backers() function..
+    :param tier:
+    A contribution tier name. Valid choices for a given organization may be acquired using this module's "get_tiers" function.
+    """
+    output = False
+    for order in backer["account"]["orders"]["nodes"]:
+        if order["status"] == "ACTIVE" and order["tier"] and order["tier"]["name"] == tier:
+            output = True
+    return output
+
+
 def filter_backers(backers: list, tiers: list[str]) -> list:
     """
     Filters a list of Open Collective backers based on their contribution tier.
@@ -95,7 +113,7 @@ def filter_backers(backers: list, tiers: list[str]) -> list:
     """
     output = []
     for tier in tiers:
-        output += [backer for backer in backers if backer["description"] == tier]
+        output += [backer for backer in backers if __test_backer_for_tier(backer, tier)]
     return output
 
 
