@@ -139,7 +139,6 @@ def export(
                 tier,
             ],
         )
-        backers.sort(key=lambda b: b["account"]["emails"][:1])
         filename = (
             base_filename.parent / f"{base_filename.stem}-{tier.replace(' ', '_')}.csv"
         ).with_suffix(".csv")
@@ -151,13 +150,12 @@ def export(
         ):
             exit()
         skipped_backers = []
+        backers = [backer for backer in backers if backer["account"]["emails"]]
+        backers.sort(key=lambda b: b["account"]["emails"][:1])
         with open(filename, "w", newline="") as csvfile:
             writer = csv.writer(csvfile)
             for backer in backers:
-                if len(backer["account"]["emails"]) < 1:
-                    skipped_backers.append(backer)
-                else:
-                    writer.writerow([backer["name"], backer["account"]["emails"][-1]])
+                writer.writerow([backer["name"], backer["account"]["emails"][-1]])
         console.print(f"Successfully exported {len(backers)} backers to {filename}.")
         if skipped_backers:
             console.print(
