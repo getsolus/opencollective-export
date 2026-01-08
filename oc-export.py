@@ -64,7 +64,7 @@ def __create_global_state(
 @app.command()
 def list_backers(
     org: Annotated[str, typer.Argument(help="Open Collective organization to query.")],
-    tier: Annotated[str or None, typer.Argument()] = None,
+    tier: Annotated[str or None, typer.Argument(help="Specify one or more tiers to list. Leave empty to list backers from all tiers.")] = None,
 ):
     """
     Lists all current backers (backers with monthly donations) for a given Open Collective organization.
@@ -112,7 +112,7 @@ def list_tiers(org: Annotated[str, typer.Argument(help="Open Collective organiza
 @app.command()
 def export(
     org: Annotated[str, typer.Argument(help="Open Collective organization to query.")],
-    tier: Annotated[List[str], typer.Argument(help="Specify one or more tiers to export. Leave empty to export all tiers.")] = (),
+    tier: Annotated[List[str], typer.Argument(help="Specify one or more tiers to export. Leave empty to export backers from all tiers.")] = (),
     base_filename: Annotated[
         pathlib.Path, typer.Option(help="Base filename to export to. Will have exported tier names added.")
     ] = f"./backers_{datetime.datetime.now().strftime("%m-%d-%Y")}.csv",
