@@ -138,6 +138,7 @@ def export(
                 tier,
             ],
         )
+        backers.sort(key=lambda b: b["account"]["emails"][:1])
         filename = (
             base_filename.parent / f"{base_filename.stem}-{tier.replace(' ', '_')}.csv"
         ).with_suffix(".csv")
