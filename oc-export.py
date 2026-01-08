@@ -63,7 +63,7 @@ def __create_global_state(
 
 @app.command()
 def list_backers(
-    org: Annotated[str, typer.Option()] = "getsolus",
+    org: Annotated[str, typer.Option()],
     tier: Annotated[str or None, typer.Argument()] = None,
 ):
     """
@@ -92,7 +92,7 @@ def list_backers(
             console.print(backer)
 
 @app.command()
-def list_tiers(org: Annotated[str, typer.Option()] = "getsolus"):
+def list_tiers(org: Annotated[str, typer.Option()]):
     """
     Lists all valid tiers for a given Open Collective organization.
     """
@@ -111,11 +111,11 @@ def list_tiers(org: Annotated[str, typer.Option()] = "getsolus"):
 
 @app.command()
 def export(
-    org: Annotated[str, typer.Option(help="Open Collective organization to query.")] = "getsolus",
+    org: Annotated[str, typer.Option(help="Open Collective organization to query.")],
     tier: Annotated[List[str], typer.Argument(help="Specify one or more tiers to export. Leave empty to export all tiers.")] = (),
     base_filename: Annotated[
         pathlib.Path, typer.Option(help="Base filename to export to. Will have exported tier names added.")
-    ] = f"./solus-backers_{datetime.datetime.now().strftime("%m-%d-%Y")}.csv",
+    ] = f"./backers_{datetime.datetime.now().strftime("%m-%d-%Y")}.csv",
 ):
     """
     Exports Open Collective backer names and email addresses to CSV files per tier.
