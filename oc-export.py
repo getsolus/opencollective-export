@@ -88,7 +88,8 @@ def list_backers(
         )
     for backer in backers:
         console.print(backer["name"])
-
+        if global_state.get("debug"):
+            console.print(backer)
 
 @app.command()
 def list_tiers(org: Annotated[str, typer.Option()] = "getsolus"):
