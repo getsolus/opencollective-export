@@ -92,7 +92,7 @@ def __test_backer_for_tier(backer: dict, tier: str) -> bool:
     """
     Tests an individual backer record to see if they are a member of the specified contribution tier.
     :param backer:
-    An individual backer, as returned by this module's get_active_backers() function..
+    An individual backer, as returned by this module's get_active_backers() function.
     :param tier:
     A contribution tier name. Valid choices for a given organization may be acquired using this module's "get_tiers" function.
     """
