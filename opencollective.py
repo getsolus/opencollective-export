@@ -23,11 +23,11 @@ def get_client(personal_token: str or None = None):
     return client
 
 
-def get_active_backers(client: Client, org: str = "getsolus") -> list:
+def get_active_backers(client: Client, org: str) -> list:
     """
     Retrieves active backers for an Open Collective organization using OC's GraphQL API.
     :param org:
-    The slug for an Open Collective organization (defaults to "getsolus").
+    The slug for an Open Collective organization.
     :param client:
     A GraphQL Client object. See this module's "get_client" function.
     :return:
@@ -117,13 +117,13 @@ def filter_backers(backers: list, tiers: list[str]) -> list:
     return output
 
 
-def get_tiers(client: Client, org: str = "getsolus") -> list:
+def get_tiers(client: Client, org: str) -> list:
     """
     Retrieves a list of valid contribution tiers for a given Open Collective organization.
     :param client:
     A GraphQL Client object. See this module's "get_client" function.
     :param org:
-    The slug for an Open Collective organization (defaults to "getsolus").
+    The slug for an Open Collective organization.
     """
     query = gql(
         """
