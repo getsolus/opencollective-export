@@ -128,7 +128,7 @@ def export(
     except TransportError as e:
         __handle_exception(e)
     if tier:
-        tiers = tier
+        tiers = tier  # Thanks to Typer, "tier" is already a list!
     else:
         console.print("No tiers specified, using all available tiers.", style="yellow")
         tiers = opencollective.get_tiers(org=org, client=client)
@@ -149,9 +149,15 @@ def export(
             )
         ):
             exit()
+
+        # If a backer does not have any email addresses, skip them for export and record their name so we can warn
+        # the user.
         skipped_backers = [backer for backer in backers if not backer["account"]["emails"]]
         backers = [backer for backer in backers if backer["account"]["emails"]]
+
+        # Sort by email address to match old "oct" behavior
         backers.sort(key=lambda b: b["account"]["emails"][:1])
+
         with open(filename, "w", newline="") as csvfile:
             writer = csv.writer(csvfile)
             for backer in backers:
