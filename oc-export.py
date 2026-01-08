@@ -149,7 +149,7 @@ def export(
             )
         ):
             exit()
-        skipped_backers = []
+        skipped_backers = [backer for backer in backers if not backer["account"]["emails"]]
         backers = [backer for backer in backers if backer["account"]["emails"]]
         backers.sort(key=lambda b: b["account"]["emails"][:1])
         with open(filename, "w", newline="") as csvfile:
