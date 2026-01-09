@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import csv
 
-import typer
+from cyclopts import App, Parameter, Group
 from gql.transport.exceptions import TransportError
 from typing_extensions import Annotated
 from typing import List
@@ -13,7 +13,8 @@ from rich.text import Text
 import pathlib
 import datetime
 
-app = typer.Typer()
+app = App()
+app.meta.group_parameters = Group("Global Parameters", sort_key=0)
 console = Console()
 error_console = Console(stderr=True, style="bold red")
 global_state = {}
@@ -53,21 +54,26 @@ def __get_token():
     return token
 
 
-@app.callback()
-def __create_global_state(
-        debug: bool = typer.Option(False, "--debug"),
-) -> None:
+@app.meta.default()
+def meta_run(*tokens: Annotated[str, Parameter(show=False, allow_leading_hyphen=True)], debug: bool = False) -> None:
     global_state["debug"] = debug
-
+    app(tokens)
 
 
 @app.command()
 def list_backers(
-    org: Annotated[str, typer.Argument(help="Open Collective organization to query.")],
-    tier: Annotated[str or None, typer.Argument(help="Specify one or more tiers to list. Leave empty to list backers from all tiers.")] = None,
+    org: str,
+    tier: str or None = None,
 ):
     """
     Lists all current backers (backers with monthly donations) for a given Open Collective organization.
+
+    Parameters
+    ----------
+    org : str
+        Open Collective organization to query.
+    tier : str or None
+        Specify one or more tiers to list. Leave empty to list backers from all tiers.
     """
     token = __get_token()
     client = opencollective.get_client(personal_token=token)
@@ -92,9 +98,14 @@ def list_backers(
             console.print(backer)
 
 @app.command()
-def list_tiers(org: Annotated[str, typer.Argument(help="Open Collective organization to query.")]):
+def list_tiers(org: str):
     """
     Lists all valid tiers for a given Open Collective organization.
+
+    Parameters
+    ----------
+    org : str
+        Open Collective organization to query.
     """
     token = __get_token()
     client = opencollective.get_client(personal_token=token)
@@ -111,14 +122,21 @@ def list_tiers(org: Annotated[str, typer.Argument(help="Open Collective organiza
 
 @app.command()
 def export(
-    org: Annotated[str, typer.Argument(help="Open Collective organization to query.")],
-    tier: Annotated[List[str], typer.Argument(help="Specify one or more tiers to export. Leave empty to export backers from all tiers.")] = (),
-    base_filename: Annotated[
-        pathlib.Path, typer.Option(help="Base filename to export to. Will have exported tier names added.")
-    ] = f"./backers_{datetime.datetime.now().strftime("%m-%d-%Y")}.csv",
+    org: str,
+    tier: List[str] = (),
+    base_filename: pathlib.Path = f"./backers_{datetime.datetime.now().strftime("%m-%d-%Y")}.csv",
 ):
     """
     Exports Open Collective backer names and email addresses to CSV files per tier.
+
+    Parameters
+    ----------
+    org : str
+        Open Collective organization to query.
+    tier : str or None
+        Specify one or more tiers to list. Leave empty to list backers from all tiers.
+    base_filename : pathlib.Path
+        Base filename to export to. Will have exported tier names appended before the file extension.
     """
     token = __get_token()
     client = opencollective.get_client(personal_token=token)
@@ -173,15 +191,15 @@ def export(
 
 @app.command()
 def set_token(
-    token: Annotated[
-        str or None,
-        typer.Option(
-            help="Open Collective Personal Token (optional - can be specified via CLI to keep the token out of shell history)"
-        ),
-    ] = None,
+    token: str or None = None,
 ):
     """
     Adds your Open Collective token to the system keyring for future use.
+
+    Parameters
+    ----------
+    token : str or None
+        Open Collective Personal Token (optional - can be specified via CLI to keep the token out of shell history)
     """
     if keyring.get_password("opencollective-export", "token"):
         if not Confirm.ask("Overwrite existing token? "):
@@ -198,4 +216,4 @@ def set_token(
 
 
 if __name__ == "__main__":
-    app()
+    app.meta()
