@@ -1,4 +1,4 @@
 gql[aiohttp, websockets]
-typer
+cyclopts
 rich
 keyring
