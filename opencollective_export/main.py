@@ -9,7 +9,6 @@ import csv
 from cyclopts import App, Parameter, Group
 from gql.transport.exceptions import TransportError
 from typing_extensions import Annotated
-from typing import List
 from opencollective_export import opencollective
 import keyring
 from rich.console import Console
@@ -61,6 +60,28 @@ def __get_token():
     return token
 
 
+def __find_invalid_tiers(tiers, org, client) -> list[str]:
+    """
+    Find invalid tiers for the supplied Open Collective organization.
+
+    Parameters
+    ----------
+    tiers : list[str]
+        Tiers to validate.
+    org: str
+        Open Collective organization to query.
+    client:
+        Ready-to-use Open Collective client.
+
+    Return
+    ------
+    list[str]
+        Invalid tiers. If a tier is returned, that means it does not exist for the provided organization.
+    """
+    all_tiers = opencollective.get_tiers(client, org)
+    return [tier for tier in tiers if tier not in all_tiers]
+
+
 @app.meta.default()
 def meta_run(*tokens: Annotated[str, Parameter(show=False, allow_leading_hyphen=True)], debug: bool = False) -> None:
     global_state["debug"] = debug
@@ -70,7 +91,7 @@ def meta_run(*tokens: Annotated[str, Parameter(show=False, allow_leading_hyphen=
 @app.command()
 def list_backers(
     org: str,
-    tier: str or None = None,
+    tier: list[str] or None = None,
 ):
     """
     Lists all current backers (backers with monthly donations) for a given Open Collective organization.
@@ -79,7 +100,7 @@ def list_backers(
     ----------
     org : str
         Open Collective organization to query.
-    tier : str or None
+    tier : list[str] or None
         Specify one or more tiers to list. Leave empty to list backers from all tiers.
     """
     token = __get_token()
@@ -89,20 +110,32 @@ def list_backers(
     except TransportError as e:
         __handle_exception(e)
     if tier:
-        backers = opencollective.filter_backers(backers, tier)
-        console.print(
-            f"Found the following {len(backers)} backers for tier {tier} and organization {org}:",
-            style="bold",
-        )
+        if nonexistent_tiers := __find_invalid_tiers(tier, org, client):
+            error_console.print(f'[red]Error:[/red] [black]The following tiers do not exist in the Open Collective organization {org}:[/black]')
+            for tier in nonexistent_tiers:
+                error_console.print(f'[black]{tier}[/black]')
+            error_console.print('Note that tier names are case-sensitive.')
+            exit()
+        for tier in tier:
+            filtered_backers = opencollective.filter_backers(backers, [tier, ])
+            console.print(
+                f"Found the following {len(filtered_backers)} backers for tier {tier} and organization {org}:",
+                style="bold",
+            )
+            for backer in filtered_backers:
+                console.print(backer["name"])
+                if global_state.get("debug"):
+                    console.print(backer)
     else:
         console.print(
             f"Found the following {len(backers)} backers for all tiers on organization {org}:",
             style="bold",
         )
-    for backer in backers:
-        console.print(backer["name"])
-        if global_state.get("debug"):
-            console.print(backer)
+        for backer in backers:
+            console.print(backer["name"])
+            if global_state.get("debug"):
+                console.print(backer)
+
 
 @app.command()
 def list_tiers(org: str):
@@ -130,7 +163,7 @@ def list_tiers(org: str):
 @app.command()
 def export(
     org: str,
-    tier: List[str] = (),
+    tier: list[str] or None = None,
     base_filename: pathlib.Path = pathlib.Path(f"./backers_{datetime.datetime.now().strftime("%m-%d-%Y")}.csv"),
 ):
     """
@@ -140,23 +173,29 @@ def export(
     ----------
     org : str
         Open Collective organization to query.
-    tier : str or None
+    tier : list[str] or None
         Specify one or more tiers to list. Leave empty to list backers from all tiers.
     base_filename : pathlib.Path
         Base filename to export to. Will have exported tier names appended before the file extension.
     """
     token = __get_token()
     client = opencollective.get_client(personal_token=token)
+    if tier:
+        if nonexistent_tiers := __find_invalid_tiers(tier, org, client):
+            error_console.print(f'[red]Error:[/red] [black]The following tiers do not exist in the Open Collective organization {org}:[/black]')
+            for tier in nonexistent_tiers:
+                error_console.print(f'[black]{tier}[/black]')
+            error_console.print('Note that tier names are case-sensitive.')
+            exit()
+        tiers = tier
+    else:
+        console.print("No tiers specified, using all available tiers.", style="yellow")
+        tiers = opencollective.get_tiers(org=org, client=client)
     console.print("Querying OpenCollective (may take a moment)...")
     try:
         all_backers = opencollective.get_active_backers(client=client, org=org)
     except TransportError as e:
         __handle_exception(e)
-    if tier:
-        tiers = tier  # Thanks to Typer, "tier" is already a list!
-    else:
-        console.print("No tiers specified, using all available tiers.", style="yellow")
-        tiers = opencollective.get_tiers(org=org, client=client)
     for tier in tiers:
         backers = opencollective.filter_backers(
             all_backers,
