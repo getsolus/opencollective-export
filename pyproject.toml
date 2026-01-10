@@ -1,0 +1,19 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "opencollective-export"
+version = "1.0.0"
+description = "A simple CLI tool to export backer data from Open Collective."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "cyclopts>=4.4.4",
+    "gql[aiohttp,websockets]>=4.0.0",
+    "keyring>=25.7.0",
+    "rich>=14.2.0",
+]
+
+[project.scripts]
+oc-export = "opencollective_export.main:app.meta"
