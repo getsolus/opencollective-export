@@ -12,7 +12,6 @@ from rich.prompt import Confirm, Prompt
 from rich.text import Text
 import pathlib
 import datetime
-import json
 
 app = App()
 app.meta.group_parameters = Group("Global Parameters", sort_key=0)
