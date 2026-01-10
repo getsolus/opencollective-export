@@ -1,5 +1,7 @@
-A simple CLI tool to export backer data from OpenCollective for ISO mailings. It might do more in the future.
-
+A simple CLI tool to export backer data from Open Collective. Current list of features:
+- List available backer tiers for a given organization.
+- List backers for a given organization.
+- Export mailing-list-ready CSV files per backer tier.
 # Setup
 1. Clone this repository somewhere and `cd` into it.
 2. Install this program's dependencies: `eopkg it python-keyring python-gql python-typer`
