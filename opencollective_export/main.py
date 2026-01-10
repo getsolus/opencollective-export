@@ -5,7 +5,7 @@ from cyclopts import App, Parameter, Group
 from gql.transport.exceptions import TransportError
 from typing_extensions import Annotated
 from typing import List
-import opencollective
+from opencollective_export import opencollective
 import keyring
 from rich.console import Console
 from rich.prompt import Confirm, Prompt
