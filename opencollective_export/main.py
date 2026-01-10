@@ -174,7 +174,7 @@ def export(
     org : str
         Open Collective organization to query.
     tier : list[str] or None
-        Specify one or more tiers to list. Leave empty to list backers from all tiers.
+        Specify one or more tiers to export. Leave empty to export backers from all tiers.
     base_filename : pathlib.Path
         Base filename to export to. Will have exported tier names appended before the file extension.
     """
