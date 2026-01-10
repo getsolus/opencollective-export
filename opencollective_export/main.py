@@ -131,7 +131,7 @@ def list_tiers(org: str):
 def export(
     org: str,
     tier: List[str] = (),
-    base_filename: pathlib.Path = f"./backers_{datetime.datetime.now().strftime("%m-%d-%Y")}.csv",
+    base_filename: pathlib.Path = pathlib.Path(f"./backers_{datetime.datetime.now().strftime("%m-%d-%Y")}.csv"),
 ):
     """
     Exports Open Collective backer names and email addresses to CSV files per tier.
