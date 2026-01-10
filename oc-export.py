@@ -12,6 +12,7 @@ from rich.prompt import Confirm, Prompt
 from rich.text import Text
 import pathlib
 import datetime
+import json
 
 app = App()
 app.meta.group_parameters = Group("Global Parameters", sort_key=0)
@@ -32,6 +33,8 @@ def __handle_exception(exception: Exception):
                 error_console.print("[red]500 Internal Server Error.[/red] [black]Open Collective can't process our query. Try again later.[/black]")
             else:
                 raise exception
+        case "TransportQueryError":
+            error_console.print(f"[red]Query Error:[/red] [black]{exception.errors[0]['message']}[/black]")
         case _:
             raise exception
     if global_state.get("debug"):
