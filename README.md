@@ -6,7 +6,10 @@ A simple CLI tool to export backer data from Open Collective. Current list of fe
 
 ## Installation
 ### Solus
-This program will soon be available from the Solus repository.
+This program is available from the Solus repository. To install it, run:
+```
+sudo eopkg install opencollective-export
+```
 
 ### Other Linux Distributions
 This program is available [from PyPI](https://pypi.org/project/opencollective-export/). As such, it can easily be installed with `pipx`:
