@@ -4,6 +4,16 @@ A simple CLI tool to export backer data from Open Collective. Current list of fe
 - List backers for a given organization.
 - Export mailing-list-ready CSV files per backer tier.
 
+## Installation
+### Solus
+This program will soon be available from the Solus repository.
+
+### Other Linux Distributions
+This program is available [from PyPI](https://pypi.org/project/opencollective-export/). As such, it can easily be installed with `pipx`:
+```
+pipx install opencollective-export
+```
+
 ## Development Setup
 1. Clone this repository somewhere and `cd` into it.
 2. Create a virtual environment: `python3 -m venv .venv`.
