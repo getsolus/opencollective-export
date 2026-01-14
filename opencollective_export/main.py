@@ -17,7 +17,7 @@ from rich.text import Text
 import pathlib
 import datetime
 
-app = App()
+app = App(help=r'Use oc-export \<command\> --help to see usage information per command.')
 app.meta.group_parameters = Group("Global Parameters", sort_key=0)
 console = Console()
 error_console = Console(stderr=True, style="bold red")
