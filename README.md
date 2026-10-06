@@ -27,7 +27,7 @@ pipx install opencollective-export
 Most of this program's documentation lives in its built-in help. Run commands with `--help` to see detailed usage. Here are a few brief examples:
 
 > [!Note]
-> All operations require the use of an Open Collective [personal token](https://documentation.opencollective.com/development/personel-tokens). Please create one before continuing
+> All operations require the use of an Open Collective [personal token](https://documentation.opencollective.com/development/personal-tokens). Please create one before continuing
 > Current operations require the scopes `account`, `orders`, and `email`. For security, don't add any others. 
 
 Once you have your token, add it to the system keyring with `oc-export set-token`.
